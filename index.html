@@ -5,165 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pretty Flower</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <style>
-      html, body { height: 100%; }
-      body {
-        margin: 0;
-        background: linear-gradient(180deg, #160014, #2a0030);
-        overflow: hidden;
-      }
-      
-      .ambient-backdrop {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background:
-          radial-gradient(60vmax 60vmax at -10% -10%, rgba(220, 20, 60, 0.28), transparent 60%),
-          radial-gradient(50vmax 50vmax at 110% 8%, rgba(138, 43, 226, 0.24), transparent 60%),
-          radial-gradient(45vmax 45vmax at 50% 115%, rgba(128, 0, 128, 0.22), transparent 60%);
-        animation: floatBackdrop 26s ease-in-out infinite alternate;
-        will-change: transform;
-      }
-      @keyframes floatBackdrop {
-        0%   { transform: translate3d(0, 0, 0) scale(1); }
-        100% { transform: translate3d(0, -1.5rem, 0) scale(1.02); }
-      }
-
-      
-      .phone-stage {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: min(92vw, 420px);
-        height: min(92vh, 840px);
-        border-radius: 28px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.06);
-        background: rgba(0,0,0,0.15);
-        backdrop-filter: blur(2px);
-      }
-      
-      .vignette {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.25) 100%);
-        z-index: 1;
-      }
-
-      
-      .flower-viewer {
-        width: 100%;
-        height: 100%;
-        display: block;
-        background:
-          radial-gradient(80% 60% at 50% 60%, rgba(138, 43, 226, 0.30), rgba(220, 20, 60, 0.22) 45%, rgba(0,0,0,0) 70%),
-          linear-gradient(180deg, #160014, #2a0030);
-      }
-
-      
-      .question-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.45);
-        padding: 24px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 220ms ease-in-out;
-        z-index: 2;
-      }
-      .question-overlay[aria-hidden="false"] {
-        opacity: 1;
-        pointer-events: auto;
-      }
-      .question-card {
-        max-width: 520px;
-        width: 100%;
-        padding: 22px 24px;
-        border-radius: 18px;
-        background: linear-gradient(180deg, rgba(18,18,24,0.92), rgba(20,12,24,0.92));
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 18px 50px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
-        transform: translateY(10px) scale(0.98);
-        opacity: 0;
-      }
-      .question-overlay[aria-hidden="false"] .question-card {
-        animation: cardPop 280ms cubic-bezier(.2, .9, .2, 1.2) forwards;
-      }
-      @keyframes cardPop {
-        0%   { transform: translateY(10px) scale(0.98); opacity: 0; }
-        60%  { transform: translateY(-2px) scale(1.02); opacity: 1; }
-        100% { transform: translateY(0) scale(1); opacity: 1; }
-      }
-      .question-text {
-        margin: 0;
-        font: 700 22px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-        color: #f8e9ff;
-        text-align: center;
-      }
-      .close-row { display: flex; justify-content: center; margin-top: 16px; }
-      .close-button {
-        appearance: none;
-        border: 0;
-        border-radius: 999px;
-        padding: 12px 18px;
-        font: 700 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-        color: #ffffff;
-        background: linear-gradient(90deg, #8a2be2, #dc143c);
-        cursor: pointer;
-        box-shadow: 0 10px 22px rgba(220, 20, 60, 0.45);
-        transition: transform 120ms ease, filter 120ms ease;
-      }
-      .close-button:hover { filter: brightness(1.05); transform: translateY(-1px); }
-      .close-button:active { transform: translateY(0); }
-      .close-button:focus { outline: 2px solid #8a2be2; outline-offset: 2px; }
-
-      
-      .fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-      .bat {
-        position: absolute;
-        font-size: 18px;
-        will-change: transform, opacity;
-        animation: flyOut 1200ms ease-in forwards;
-        text-shadow: 0 2px 8px rgba(138,43,226,0.55);
-      }
-      .spark {
-        position: absolute;
-        font-size: 12px;
-        will-change: transform, opacity;
-        animation: twinkle 900ms ease-out forwards;
-        color: #f8e9ff;
-        text-shadow: 0 0 8px rgba(248,233,255,0.7);
-      }
-      @keyframes flyOut {
-        0%   { transform: translate(0, 0) scale(0.8) rotate(0deg); opacity: 0; }
-        20%  { opacity: 1; }
-        100% { transform: translate(var(--tx), var(--ty)) scale(1.3) rotate(var(--rot)); opacity: 0; }
-      }
-      @keyframes twinkle {
-        0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
-        30%  { opacity: 1; }
-        100% { transform: translate(var(--tx), var(--ty)) scale(1.1); opacity: 0; }
-      }
-
-      
-      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <div class="ambient-backdrop" aria-hidden="true"></div>
 
     <div class="phone-stage" role="region" aria-label="Phone preview">
-      
       <model-viewer
         class="flower-viewer"
         src="blackrose.glb"
-        alt="Pretty flower"
+        alt="Pretty Flower"
         auto-rotate
         rotation-per-second="20deg"
         shadow-intensity="1"
@@ -175,97 +26,19 @@
 
       <div class="vignette" aria-hidden="true"></div>
       <div class="fx-layer" aria-hidden="true"></div>
+      <div class="celebrate-layer" aria-hidden="true"></div>
 
       <div class="question-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="q-title">
         <div class="question-card" role="document">
           <p id="q-title" class="question-text">do you wanna be my gf?</p>
-          <div class="close-row">
-            <button type="button" class="close-button" aria-label="Close">Close</button>
+          <div class="actions-row">
+            <button type="button" class="action-button btn-no" aria-label="No">No</button>
+            <button type="button" class="action-button btn-yes" aria-label="Yes">Yes</button>
           </div>
         </div>
       </div>
     </div>
 
-    <script>
-      const stage = document.querySelector('.phone-stage');
-      const viewer = document.querySelector('model-viewer');
-      const overlay = document.querySelector('.question-overlay');
-      const closeBtn = document.querySelector('.close-button');
-      const fxLayer = document.querySelector('.fx-layer');
-
-      function bat(color, x, y, dx, dy, rot) {
-        const el = document.createElement('span');
-        el.className = 'bat';
-        el.textContent = '🦇';
-        el.style.color = color;
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        el.style.setProperty('--tx', dx + 'px');
-        el.style.setProperty('--ty', dy + 'px');
-        el.style.setProperty('--rot', rot + 'deg');
-        el.addEventListener('animationend', () => el.remove());
-        fxLayer.appendChild(el);
-      }
-      function spark(x, y, dx, dy) {
-        const el = document.createElement('span');
-        el.className = 'spark';
-        el.textContent = '✨';
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        el.style.setProperty('--tx', dx + 'px');
-        el.style.setProperty('--ty', dy + 'px');
-        el.addEventListener('animationend', () => el.remove());
-        fxLayer.appendChild(el);
-      }
-
-      function burstBats(x, y) {
-        const colors = ['#dc143c', '#8a2be2', '#800080'];
-        const count = 12;
-        for (let i = 0; i < count; i++) {
-          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.6;
-          const dist = 30 + Math.random() * 40;
-          const dx = Math.cos(angle) * dist;
-          const dy = Math.sin(angle) * -dist - 20;
-          const rot = (Math.random() * 120 - 60).toFixed(1);
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          bat(color, x, y, dx, dy, rot);
-          if (i % 3 === 0) {
-            spark(x + dx * 0.4, y + dy * 0.4, dx * 0.2, dy * 0.2);
-          }
-        }
-      }
-
-      function showQuestion(ev) {
-        overlay.setAttribute('aria-hidden', 'false');
-        
-        const rect = stage.getBoundingClientRect();
-        const cx = ev?.clientX ? (ev.clientX - rect.left) : rect.width / 2;
-        const cy = ev?.clientY ? (ev.clientY - rect.top) : rect.height / 2;
-        burstBats(cx, cy);
-        
-        setTimeout(() => closeBtn.focus({ preventScroll: true }), 60);
-      }
-      function hideQuestion() {
-        overlay.setAttribute('aria-hidden', 'true');
-        viewer.focus();
-      }
-
-     
-      viewer.addEventListener('click', showQuestion);
-      viewer.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        const touch = e.changedTouches && e.changedTouches[0];
-        if (touch) {
-          showQuestion({ clientX: touch.clientX, clientY: touch.clientY });
-        } else {
-          showQuestion();
-        }
-      }, { passive: false });
-
-      
-      closeBtn.addEventListener('click', hideQuestion);
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) hideQuestion(); });
-      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideQuestion(); });
-    </script>
+    <script src="main.js"></script>
   </body>
 </html>
